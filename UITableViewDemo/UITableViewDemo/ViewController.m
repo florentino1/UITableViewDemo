@@ -42,7 +42,7 @@
 }
 -(void)createTableView
 {
-    _myTableView=[[UITableView alloc]initWithFrame:CGRectMake(0, 0, [UIScreen mainScreen].bounds.size.width, [UIScreen mainScreen].bounds.size.height) style:UITableViewStylePlain];
+    _myTableView=[[UITableView alloc]initWithFrame:CGRectMake(0, 0, [UIScreen mainScreen].bounds.size.width, [UIScreen mainScreen].bounds.size.height) style:UITableViewStyleGrouped];
     UIImageView *bg=[[UIImageView alloc]initWithFrame:self.myTableView.frame];
     bg.image=[UIImage imageNamed:@"bgpic"];
     [bg setContentMode:UIViewContentModeScaleToFill];
@@ -83,15 +83,10 @@
     content.secondaryTextProperties.font=[UIFont systemFontOfSize:20];
     cell.contentConfiguration=content;
     cell.backgroundColor=[UIColor clearColor];
+    cell.selectionStyle=UITableViewCellSelectionStyleDefault;
     
     return cell;
 }
-/*
-- (NSString *)tableView:(UITableView *)tableView titleForFooterInSection:(NSInteger)section
-{
-    
-}
-*/
 #pragma mark ---delegate
 - (CGFloat)tableView:(UITableView *)tableView heightForHeaderInSection:(NSInteger)section
 {
@@ -141,7 +136,7 @@
     {
         UIView *footer=[[UIView alloc]initWithFrame:CGRectMake(0, 0, 0, 0)];
         footer.backgroundColor=[UIColor clearColor];
-        UILabel *label=[[UILabel alloc]initWithFrame:CGRectMake(20, 0, [UIScreen mainScreen].bounds.size.width, 24)];
+        UILabel *label=[[UILabel alloc]initWithFrame:CGRectMake(tableView.separatorInset.left, 0, [UIScreen mainScreen].bounds.size.width, 24)];
         label.textColor=[UIColor whiteColor];
         label.textAlignment=NSTextAlignmentNatural;
         label.numberOfLines=2;
