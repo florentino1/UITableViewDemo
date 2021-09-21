@@ -14,7 +14,8 @@
 		812B7E2A26F5E6C900495050 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 812B7E2926F5E6C900495050 /* Assets.xcassets */; };
 		812B7E2D26F5E6C900495050 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 812B7E2B26F5E6C900495050 /* LaunchScreen.storyboard */; };
 		812B7E3026F5E6C900495050 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 812B7E2F26F5E6C900495050 /* main.m */; };
-		812B7E3726F81BB300495050 /* source.plist in Resources */ = {isa = PBXBuildFile; fileRef = 812B7E3626F81BB300495050 /* source.plist */; };
+		812B7E3C26F97EC700495050 /* source.plist in Resources */ = {isa = PBXBuildFile; fileRef = 812B7E3B26F97EC700495050 /* source.plist */; };
+		812B7E3F26F97EE500495050 /* prefetch.m in Sources */ = {isa = PBXBuildFile; fileRef = 812B7E3E26F97EE500495050 /* prefetch.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -30,7 +31,9 @@
 		812B7E2C26F5E6C900495050 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		812B7E2E26F5E6C900495050 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		812B7E2F26F5E6C900495050 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
-		812B7E3626F81BB300495050 /* source.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = source.plist; path = ../../../source.plist; sourceTree = "<group>"; };
+		812B7E3B26F97EC700495050 /* source.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = source.plist; sourceTree = "<group>"; };
+		812B7E3D26F97EE500495050 /* prefetch.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = prefetch.h; sourceTree = "<group>"; };
+		812B7E3E26F97EE500495050 /* prefetch.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = prefetch.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -63,6 +66,7 @@
 		812B7E1C26F5E6C500495050 /* UITableViewDemo */ = {
 			isa = PBXGroup;
 			children = (
+				812B7E3B26F97EC700495050 /* source.plist */,
 				812B7E1D26F5E6C500495050 /* AppDelegate.h */,
 				812B7E1E26F5E6C500495050 /* AppDelegate.m */,
 				812B7E2026F5E6C500495050 /* SceneDelegate.h */,
@@ -74,7 +78,8 @@
 				812B7E2B26F5E6C900495050 /* LaunchScreen.storyboard */,
 				812B7E2E26F5E6C900495050 /* Info.plist */,
 				812B7E2F26F5E6C900495050 /* main.m */,
-				812B7E3626F81BB300495050 /* source.plist */,
+				812B7E3D26F97EE500495050 /* prefetch.h */,
+				812B7E3E26F97EE500495050 /* prefetch.m */,
 			);
 			path = UITableViewDemo;
 			sourceTree = "<group>";
@@ -137,8 +142,8 @@
 			files = (
 				812B7E2D26F5E6C900495050 /* LaunchScreen.storyboard in Resources */,
 				812B7E2A26F5E6C900495050 /* Assets.xcassets in Resources */,
-				812B7E3726F81BB300495050 /* source.plist in Resources */,
 				812B7E2826F5E6C500495050 /* Main.storyboard in Resources */,
+				812B7E3C26F97EC700495050 /* source.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -151,6 +156,7 @@
 			files = (
 				812B7E2526F5E6C500495050 /* ViewController.m in Sources */,
 				812B7E1F26F5E6C500495050 /* AppDelegate.m in Sources */,
+				812B7E3F26F97EE500495050 /* prefetch.m in Sources */,
 				812B7E3026F5E6C900495050 /* main.m in Sources */,
 				812B7E2226F5E6C500495050 /* SceneDelegate.m in Sources */,
 			);

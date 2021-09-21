@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<array>
+	<array>
+		<dict>
+			<key>index</key>
+			<string>A</string>
+			<key>image</key>
+			<string>firstname</string>
+			<key>title</key>
+			<string>your first name</string>
+			<key>subtitle</key>
+			<string>first name</string>
+		</dict>
+		<dict>
+			<key>index</key>
+			<string>B</string>
+			<key>image</key>
+			<string>lastname</string>
+			<key>title</key>
+			<string>your last name</string>
+			<key>subtitle</key>
+			<string>last name</string>
+		</dict>
+		<dict>
+			<key>index</key>
+			<string>C</string>
+			<key>image</key>
+			<string>person</string>
+			<key>title</key>
+			<string>your user name</string>
+			<key>subtitle</key>
+			<string>user name</string>
+		</dict>
+		<dict>
+			<key>index</key>
+			<string>D</string>
+			<key>image</key>
+			<string>lock</string>
+			<key>title</key>
+			<string>create your password</string>
+			<key>subtitle</key>
+			<string>password</string>
+		</dict>
+		<dict>
+			<key>index</key>
+			<string>E</string>
+			<key>image</key>
+			<string>lock</string>
+			<key>title</key>
+			<string>confirm your password</string>
+			<key>subtitle</key>
+			<string>confirm</string>
+		</dict>
+	</array>
+	<array>
+		<dict>
+			<key>index</key>
+			<string>F</string>
+			<key>subtitle</key>
+			<string>enter your email</string>
+			<key>title</key>
+			<string>email</string>
+			<key>image</key>
+			<string>email</string>
+		</dict>
+	</array>
+</array>
+</plist>

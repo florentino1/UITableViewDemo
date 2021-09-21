@@ -6,6 +6,7 @@
 //
 
 #import "ViewController.h"
+#import "prefetch.h"
 
 @interface ViewController ()<UITableViewDelegate,UITableViewDataSource>
 @property (strong,nonatomic)UITableView *myTableView;
@@ -37,7 +38,7 @@
     _footerButton.layer.masksToBounds=YES;
     
     NSString *path=[[NSBundle mainBundle]pathForResource:@"source" ofType:@".plist"];
-    _propertyArray=[NSArray arrayWithContentsOfFile:path];
+    _propertyArray=[NSMutableArray arrayWithContentsOfFile:path];
     [self createTableView];
 }
 -(void)createTableView
@@ -51,18 +52,18 @@
     self.myTableView.dataSource=self;
     self.myTableView.rowHeight=80;
     [self.view addSubview:_myTableView];
+    
+ //   prefetch *predata=[[prefetch alloc]init];
+ //   self.myTableView.prefetchDataSource=predata;
 }
 #pragma mark---datasource
+//@required
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
 {
     if(section==0)
-        return 5;
+        return [_propertyArray[0] count];
     else
-        return 1;
-}
-- (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
-{
-    return 2;
+        return [_propertyArray[1] count];
 }
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
 {
@@ -84,9 +85,78 @@
     cell.contentConfiguration=content;
     cell.backgroundColor=[UIColor clearColor];
     cell.selectionStyle=UITableViewCellSelectionStyleDefault;
+    cell.accessoryType=UITableViewCellAccessoryNone;
     
     return cell;
 }
+
+//@option
+- (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
+{
+    return _propertyArray.count;
+}
+
+//edit
+-(BOOL)tableView:(UITableView *)tableView canEditRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    if(indexPath.section==1)
+        return NO;
+    return YES;
+}
+-(void)tableView:(UITableView *)tableView commitEditingStyle:(UITableViewCellEditingStyle)editingStyle forRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    if(indexPath.section==0 && editingStyle==UITableViewCellEditingStyleInsert)
+    {
+        NSMutableDictionary *dicToAdd=[[NSMutableDictionary alloc]init];
+        [dicToAdd setObject:@"lock" forKey:@"image"];
+        [dicToAdd setObject:@"newItem" forKey:@"title"];
+        [dicToAdd setObject:@"item" forKey:@"subtitle"];
+        NSMutableArray *arr=_propertyArray[0];
+        [arr addObject:dicToAdd];
+    }
+    else if(indexPath.section==0 && editingStyle==UITableViewCellEditingStyleDelete)
+    {/*
+        NSMutableArray *arr=_propertyArray[0];
+        [arr removeObjectAtIndex:indexPath.row];
+      */
+        NSLog(@"please donot delete a primary cell");
+    }
+    NSString *path=[[NSBundle mainBundle]pathForResource:@"source" ofType:@".plist"];
+    [_propertyArray writeToFile:path atomically:YES];
+}
+
+//move
+-(BOOL)tableView:(UITableView *)tableView canMoveRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    if(indexPath.section==1)
+        return NO;
+    return YES;
+}
+-(void)tableView:(UITableView *)tableView moveRowAtIndexPath:(NSIndexPath *)sourceIndexPath toIndexPath:(NSIndexPath *)destinationIndexPath
+{
+    if(sourceIndexPath.section==0 && destinationIndexPath.section==0)
+    {
+        NSMutableArray *arr=_propertyArray[0];
+        [arr exchangeObjectAtIndex:sourceIndexPath.row withObjectAtIndex:destinationIndexPath.row];
+    }
+}
+/*
+//sectionindex
+-(NSArray<NSString *> *)sectionIndexTitlesForTableView:(UITableView *)tableView
+{
+    NSMutableArray *arrayForIndex=[[NSMutableArray alloc]init];
+    for(int i=0;i<_propertyArray.count;i++)
+    {
+        NSArray *arrInPro=_propertyArray[i];
+        for(int j=0;j<arrInPro.count;j++)
+        {
+            NSString *index=[arrInPro[j] objectForKey:@"index"];
+            [arrayForIndex addObject:index];
+        }
+    }
+    return arrayForIndex;
+}
+*/
 #pragma mark ---delegate
 - (CGFloat)tableView:(UITableView *)tableView heightForHeaderInSection:(NSInteger)section
 {
@@ -97,10 +167,16 @@
 }
 - (UIView *)tableView:(UITableView *)tableView viewForHeaderInSection:(NSInteger)section
 {
-    UIView *header=[[UIView alloc]initWithFrame:CGRectMake(0, 0, 0, 0)];
-    header.backgroundColor=[UIColor clearColor];
-    [header addSubview:_headerLabelView];
-    return header;
+    if(section==0)
+    {
+        UIView *header=[[UIView alloc]initWithFrame:CGRectMake(0, 0, 0, 0)];
+        header.backgroundColor=[UIColor clearColor];
+        [header addSubview:_headerLabelView];
+        return header;
+    }
+    else
+        return nil;
+    
 }
 - (CGFloat)tableView:(UITableView *)tableView heightForFooterInSection:(NSInteger)section
 {
