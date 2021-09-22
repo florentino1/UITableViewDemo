@@ -13,6 +13,7 @@
 @property (strong,nonatomic)UILabel *headerLabelView;
 @property (strong,nonatomic)UIButton *footerButton;
 @property (strong,nonatomic)NSArray *propertyArray;
+@property(assign)BOOL isInsert;
 @end
 
 @implementation ViewController
@@ -21,6 +22,7 @@
     [super viewDidLoad];
     // Do any additional setup after loading the view.
     
+    self.isInsert=NO;
     _headerLabelView=[[UILabel alloc]initWithFrame:CGRectMake(0, 0, [UIScreen mainScreen].bounds.size.width, 44)];
     _headerLabelView.textColor=[UIColor whiteColor];
     _headerLabelView.adjustsFontSizeToFitWidth=YES;
@@ -70,19 +72,6 @@
     UITableViewCell *cell=[tableView dequeueReusableCellWithIdentifier:@"reusabelcell"];
     if(!cell)
         cell=[[UITableViewCell alloc]initWithStyle:UITableViewCellStyleSubtitle reuseIdentifier:@"reusablecell"];
-    NSUInteger section=indexPath.section;
-    NSUInteger index=indexPath.row;
-    NSArray *sectionArray=_propertyArray[section];
-    NSDictionary *dicforcell=sectionArray[index];
-    UIListContentConfiguration *content=cell.defaultContentConfiguration;
-    content.image=[UIImage imageNamed:[dicforcell objectForKey:@"image"]];
-    content.text=[dicforcell objectForKey:@"subtitle"];
-    content.secondaryText=[dicforcell objectForKey:@"title"];
-    content.textProperties.color=[UIColor whiteColor];
-    content.textProperties.font=[UIFont systemFontOfSize:15];
-    content.secondaryTextProperties.color=[UIColor whiteColor];
-    content.secondaryTextProperties.font=[UIFont systemFontOfSize:20];
-    cell.contentConfiguration=content;
     cell.backgroundColor=[UIColor clearColor];
     cell.selectionStyle=UITableViewCellSelectionStyleDefault;
     cell.accessoryType=UITableViewCellAccessoryNone;
@@ -103,9 +92,10 @@
         return NO;
     return YES;
 }
+//添加或者删除一个row；添加的方法转移到代理方法中而不在DataSource代理中实现；
 -(void)tableView:(UITableView *)tableView commitEditingStyle:(UITableViewCellEditingStyle)editingStyle forRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    if(indexPath.section==0 && editingStyle==UITableViewCellEditingStyleInsert)
+   /* if(indexPath.section==1 && editingStyle==UITableViewCellEditingStyleInsert)
     {
         NSMutableDictionary *dicToAdd=[[NSMutableDictionary alloc]init];
         [dicToAdd setObject:@"lock" forKey:@"image"];
@@ -113,23 +103,29 @@
         [dicToAdd setObject:@"item" forKey:@"subtitle"];
         NSMutableArray *arr=_propertyArray[0];
         [arr addObject:dicToAdd];
+        NSIndexSet *set=[[NSIndexSet alloc]initWithIndexesInRange:NSMakeRange(indexPath.row, [_propertyArray[0] count]-indexPath.row)];
+        [tableView reloadSections:set withRowAnimation:UITableViewRowAnimationAutomatic];
     }
-    else if(indexPath.section==0 && editingStyle==UITableViewCellEditingStyleDelete)
-    {/*
+    else */if(indexPath.section==0 && editingStyle==UITableViewCellEditingStyleDelete)
+    {
+        
         NSMutableArray *arr=_propertyArray[0];
         [arr removeObjectAtIndex:indexPath.row];
-      */
-        NSLog(@"please donot delete a primary cell");
+        [tableView deleteRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationRight];
+        
+       // NSLog(@"please donot delete a primary cell");
     }
-    NSString *path=[[NSBundle mainBundle]pathForResource:@"source" ofType:@".plist"];
-    [_propertyArray writeToFile:path atomically:YES];
+    /*
+     NSString *path=[[NSBundle mainBundle]pathForResource:@"source" ofType:@".plist"];
+     [_propertyArray writeToFile:path atomically:YES];
+     */
 }
 
 //move
 -(BOOL)tableView:(UITableView *)tableView canMoveRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    if(indexPath.section==1)
-        return NO;
+   /* if(indexPath.section==1)
+        return NO;*/
     return YES;
 }
 -(void)tableView:(UITableView *)tableView moveRowAtIndexPath:(NSIndexPath *)sourceIndexPath toIndexPath:(NSIndexPath *)destinationIndexPath
@@ -141,7 +137,7 @@
     }
 }
 /*
-//sectionindex
+//sectionindex索引
 -(NSArray<NSString *> *)sectionIndexTitlesForTableView:(UITableView *)tableView
 {
     NSMutableArray *arrayForIndex=[[NSMutableArray alloc]init];
@@ -158,6 +154,74 @@
 }
 */
 #pragma mark ---delegate
+-(void)tableView:(UITableView *)tableView willDisplayCell:(UITableViewCell *)cell forRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    NSUInteger section=indexPath.section;
+    NSUInteger index=indexPath.row;
+    NSArray *sectionArray=_propertyArray[section];
+    NSDictionary *dicforcell=sectionArray[index];
+    UIListContentConfiguration *content=cell.defaultContentConfiguration;
+    content.image=[UIImage imageNamed:[dicforcell objectForKey:@"image"]];
+    content.text=[dicforcell objectForKey:@"subtitle"];
+    content.secondaryText=[dicforcell objectForKey:@"title"];
+    content.textProperties.color=[UIColor whiteColor];
+    content.textProperties.font=[UIFont systemFontOfSize:15];
+    content.secondaryTextProperties.color=[UIColor whiteColor];
+    content.secondaryTextProperties.font=[UIFont systemFontOfSize:20];
+    cell.contentConfiguration=content;
+}
+
+ //行选中时
+-(void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    /*
+    UITableViewCell *cellselected=[tableView cellForRowAtIndexPath:indexPath];
+    [cellselected setEditing:YES animated:YES];
+    [tableView deselectRowAtIndexPath:indexPath animated:YES];
+     */
+}
+//编辑模式
+- (UITableViewCellEditingStyle)tableView:(UITableView *)tableView editingStyleForRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    if(self.isInsert)
+        return UITableViewCellEditingStyleInsert;
+    else
+        return UITableViewCellEditingStyleDelete;
+}
+
+//添加左滑按钮，向tableview中添加一个row；
+-(UISwipeActionsConfiguration *)tableView:(UITableView *)tableView leadingSwipeActionsConfigurationForRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    UIContextualAction *addAction=[UIContextualAction
+                                            contextualActionWithStyle:UIContextualActionStyleNormal
+                                            title:@"add"
+                                            handler:^(UIContextualAction * _Nonnull action,
+                                                      __kindof UIView * _Nonnull sourceView,
+                                                      void (^ _Nonnull completionHandler)(BOOL))
+        {
+            NSMutableDictionary *dicToAdd=[[NSMutableDictionary alloc]init];
+            [dicToAdd setObject:@"lock" forKey:@"image"];
+            [dicToAdd setObject:@"newItem" forKey:@"title"];
+            [dicToAdd setObject:@"item" forKey:@"subtitle"];
+            NSMutableArray *arr=self->_propertyArray[0];
+            [arr addObject:dicToAdd];
+            [tableView insertRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationLeft];
+            NSIndexSet *set=[[NSIndexSet alloc]initWithIndex:0];
+            [tableView reloadSections:set withRowAnimation:UITableViewRowAnimationAutomatic];
+            completionHandler(true);
+        }];
+    addAction.image=[UIImage imageNamed:@"lock"];
+    return [UISwipeActionsConfiguration configurationWithActions:@[addAction]];
+}
+-(NSIndexPath *)tableView:(UITableView *)tableView targetIndexPathForMoveFromRowAtIndexPath:(NSIndexPath *)sourceIndexPath toProposedIndexPath:(NSIndexPath *)proposedDestinationIndexPath
+{
+    return proposedDestinationIndexPath;
+}
+//高亮显示；
+- (BOOL)tableView:(UITableView *)tableView shouldHighlightRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    return YES;
+}
 - (CGFloat)tableView:(UITableView *)tableView heightForHeaderInSection:(NSInteger)section
 {
     if(section==0)
@@ -172,11 +236,26 @@
         UIView *header=[[UIView alloc]initWithFrame:CGRectMake(0, 0, 0, 0)];
         header.backgroundColor=[UIColor clearColor];
         [header addSubview:_headerLabelView];
+        UIButton *add=[UIButton buttonWithType:UIButtonTypeContactAdd];
+        CGRect addRect=CGRectMake(10, 10, 30, 30);
+        add.frame=addRect;
+        [add addTarget:self action:@selector(seteditingmode) forControlEvents:UIControlEventTouchUpInside];
+        UIButton *delete=[UIButton buttonWithType:UIButtonTypeClose];
+        CGRect deleteRect=CGRectMake([UIScreen mainScreen].bounds.size.width-30, 10, 30, 30);
+        delete.frame=deleteRect;
+        
+        [header addSubview:add];
+        [header addSubview:delete];
         return header;
     }
     else
         return nil;
     
+}
+-(void)seteditingmode
+{
+    self.isInsert=YES;
+    self.myTableView.editing=YES;
 }
 - (CGFloat)tableView:(UITableView *)tableView heightForFooterInSection:(NSInteger)section
 {
@@ -224,5 +303,6 @@
         return  footer;
     }
 }
+
 
 @end
