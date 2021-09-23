@@ -92,21 +92,22 @@
         return NO;
     return YES;
 }
-//添加或者删除一个row；添加的方法转移到代理方法中而不在DataSource代理中实现；
+//添加或者删除一个row；
 -(void)tableView:(UITableView *)tableView commitEditingStyle:(UITableViewCellEditingStyle)editingStyle forRowAtIndexPath:(NSIndexPath *)indexPath
 {
-   /* if(indexPath.section==1 && editingStyle==UITableViewCellEditingStyleInsert)
+    if(indexPath.section==0 && editingStyle==UITableViewCellEditingStyleInsert)
     {
         NSMutableDictionary *dicToAdd=[[NSMutableDictionary alloc]init];
         [dicToAdd setObject:@"lock" forKey:@"image"];
         [dicToAdd setObject:@"newItem" forKey:@"title"];
         [dicToAdd setObject:@"item" forKey:@"subtitle"];
         NSMutableArray *arr=_propertyArray[0];
-        [arr addObject:dicToAdd];
-        NSIndexSet *set=[[NSIndexSet alloc]initWithIndexesInRange:NSMakeRange(indexPath.row, [_propertyArray[0] count]-indexPath.row)];
-        [tableView reloadSections:set withRowAnimation:UITableViewRowAnimationAutomatic];
+        [arr insertObject:dicToAdd atIndex:indexPath.row];
+        [tableView insertRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationLeft];
+      //  NSIndexSet *set=[[NSIndexSet alloc]initWithIndex:0];
+       // [tableView reloadSections:set withRowAnimation:UITableViewRowAnimationAutomatic];
     }
-    else */if(indexPath.section==0 && editingStyle==UITableViewCellEditingStyleDelete)
+    else if(indexPath.section==0 && editingStyle==UITableViewCellEditingStyleDelete)
     {
         
         NSMutableArray *arr=_propertyArray[0];
@@ -116,6 +117,7 @@
        // NSLog(@"please donot delete a primary cell");
     }
     /*
+     暂时不更新到外部源文件中；
      NSString *path=[[NSBundle mainBundle]pathForResource:@"source" ofType:@".plist"];
      [_propertyArray writeToFile:path atomically:YES];
      */
@@ -124,8 +126,8 @@
 //move
 -(BOOL)tableView:(UITableView *)tableView canMoveRowAtIndexPath:(NSIndexPath *)indexPath
 {
-   /* if(indexPath.section==1)
-        return NO;*/
+    if(indexPath.section==1)
+        return NO;
     return YES;
 }
 -(void)tableView:(UITableView *)tableView moveRowAtIndexPath:(NSIndexPath *)sourceIndexPath toIndexPath:(NSIndexPath *)destinationIndexPath
@@ -174,11 +176,12 @@
  //行选中时
 -(void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    /*
+    
     UITableViewCell *cellselected=[tableView cellForRowAtIndexPath:indexPath];
-    [cellselected setEditing:YES animated:YES];
-    [tableView deselectRowAtIndexPath:indexPath animated:YES];
-     */
+    //重复点击时，取消选中
+    if(cellselected.isSelected)
+        [tableView deselectRowAtIndexPath:indexPath animated:YES];
+     
 }
 //编辑模式
 - (UITableViewCellEditingStyle)tableView:(UITableView *)tableView editingStyleForRowAtIndexPath:(NSIndexPath *)indexPath
@@ -188,8 +191,8 @@
     else
         return UITableViewCellEditingStyleDelete;
 }
-
-//添加左滑按钮，向tableview中添加一个row；
+/*
+//自定义添加左滑按钮，向tableview中添加一个row；
 -(UISwipeActionsConfiguration *)tableView:(UITableView *)tableView leadingSwipeActionsConfigurationForRowAtIndexPath:(NSIndexPath *)indexPath
 {
     UIContextualAction *addAction=[UIContextualAction
@@ -213,6 +216,7 @@
     addAction.image=[UIImage imageNamed:@"lock"];
     return [UISwipeActionsConfiguration configurationWithActions:@[addAction]];
 }
+ */
 -(NSIndexPath *)tableView:(UITableView *)tableView targetIndexPathForMoveFromRowAtIndexPath:(NSIndexPath *)sourceIndexPath toProposedIndexPath:(NSIndexPath *)proposedDestinationIndexPath
 {
     return proposedDestinationIndexPath;
@@ -243,6 +247,7 @@
         UIButton *delete=[UIButton buttonWithType:UIButtonTypeClose];
         CGRect deleteRect=CGRectMake([UIScreen mainScreen].bounds.size.width-30, 10, 30, 30);
         delete.frame=deleteRect;
+        [delete addTarget:self action:@selector(setEditingDeleteMode) forControlEvents:UIControlEventTouchUpInside];
         
         [header addSubview:add];
         [header addSubview:delete];
@@ -251,11 +256,6 @@
     else
         return nil;
     
-}
--(void)seteditingmode
-{
-    self.isInsert=YES;
-    self.myTableView.editing=YES;
 }
 - (CGFloat)tableView:(UITableView *)tableView heightForFooterInSection:(NSInteger)section
 {
@@ -303,6 +303,37 @@
         return  footer;
     }
 }
+#pragma  mark---其他方法；
+//编辑模式的响应方法；
+-(void)seteditingmode
+{
+    if(!self.isInsert)
+    {
+        self.isInsert=YES;
+        [UIView animateWithDuration:0.2 animations:^{
+                self.myTableView.editing=YES;
+        }];
+    }
+    else
+    {
+        self.isInsert=NO;
+        [UIView animateWithDuration:0.2 animations:^{
+                self.myTableView.editing=NO;
+        }];
+    }
+}
+-(void)setEditingDeleteMode
+{
+    if(self.myTableView.isEditing)
+        [UIView animateWithDuration:0.2 animations:^{
+                self.myTableView.editing=NO;
+        }];
+    else
+        [UIView animateWithDuration:0.2 animations:^{
+                self.myTableView.editing=YES;
+        }];
+}
+
 
 
 @end
