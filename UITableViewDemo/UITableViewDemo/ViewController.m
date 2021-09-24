@@ -13,7 +13,7 @@
 @property (strong,nonatomic)UILabel *headerLabelView;
 @property (strong,nonatomic)UIButton *footerButton;
 @property (strong,nonatomic)NSArray *propertyArray;
-@property(assign)BOOL isInsert;
+@property(assign)BOOL isInsert;//确认是否是新增按钮被点击；
 @end
 
 @implementation ViewController
@@ -164,6 +164,7 @@
     NSDictionary *dicforcell=sectionArray[index];
     UIListContentConfiguration *content=cell.defaultContentConfiguration;
     content.image=[UIImage imageNamed:[dicforcell objectForKey:@"image"]];
+    content.imageProperties.maximumSize=CGSizeMake(45, 45);
     content.text=[dicforcell objectForKey:@"subtitle"];
     content.secondaryText=[dicforcell objectForKey:@"title"];
     content.textProperties.color=[UIColor whiteColor];
@@ -174,14 +175,17 @@
 }
 
  //行选中时
--(void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
+-(NSIndexPath *)tableView:(UITableView *)tableView willSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
     
     UITableViewCell *cellselected=[tableView cellForRowAtIndexPath:indexPath];
     //重复点击时，取消选中
     if(cellselected.isSelected)
+    {
         [tableView deselectRowAtIndexPath:indexPath animated:YES];
-     
+        return nil;         //返回nil可以阻止系统调用didSelectRowAtIndexPath:方法；
+    }
+    return indexPath;
 }
 //编辑模式
 - (UITableViewCellEditingStyle)tableView:(UITableView *)tableView editingStyleForRowAtIndexPath:(NSIndexPath *)indexPath
@@ -232,6 +236,17 @@
         return 80;
     else
         return 0;
+}
+//行高度的预估计算
+- (CGFloat)tableView:(UITableView *)tableView estimatedHeightForRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    CGFloat cellMargin=4.0;
+    CGFloat imageMaxHeight=40.0;
+    UIFont *bodyfont=[UIFont preferredFontForTextStyle:UIFontTextStyleBody];
+    CGFloat bodyfontheight=bodyfont.lineHeight+bodyfont.leading;
+    CGFloat cellfontheight=bodyfontheight *2 +cellMargin*2;
+    CGFloat cellestimateheight=(imageMaxHeight>cellfontheight)? imageMaxHeight :cellfontheight;
+    return cellestimateheight;
 }
 - (UIView *)tableView:(UITableView *)tableView viewForHeaderInSection:(NSInteger)section
 {
@@ -333,7 +348,4 @@
                 self.myTableView.editing=YES;
         }];
 }
-
-
-
 @end
