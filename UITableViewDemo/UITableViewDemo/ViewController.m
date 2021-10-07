@@ -7,6 +7,7 @@
 
 #import "ViewController.h"
 #import "prefetch.h"
+#import "myTableViewCell.h"
 
 @interface ViewController ()<UITableViewDelegate,UITableViewDataSource>
 @property (strong,nonatomic)UITableView *myTableView;
@@ -52,7 +53,7 @@
     _myTableView.backgroundView=bg;
     self.myTableView.delegate=self;
     self.myTableView.dataSource=self;
-    self.myTableView.rowHeight=80;
+   // self.myTableView.rowHeight=80;  动态计算行高度时不需要设置这一属性
     [self.view addSubview:_myTableView];
     
  //   prefetch *predata=[[prefetch alloc]init];
@@ -64,19 +65,34 @@
 {
     if(section==0)
         return [_propertyArray[0] count];
-    else
+    else if(section==1)
         return [_propertyArray[1] count];
+    else
+        return [_propertyArray[2] count];
 }
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    UITableViewCell *cell=[tableView dequeueReusableCellWithIdentifier:@"reusabelcell"];
-    if(!cell)
-        cell=[[UITableViewCell alloc]initWithStyle:UITableViewCellStyleSubtitle reuseIdentifier:@"reusablecell"];
-    cell.backgroundColor=[UIColor clearColor];
-    cell.selectionStyle=UITableViewCellSelectionStyleDefault;
-    cell.accessoryType=UITableViewCellAccessoryNone;
-    
-    return cell;
+    if(indexPath.section!=2)
+    {
+        UITableViewCell *cell=[tableView dequeueReusableCellWithIdentifier:@"reusabelcell"];
+        if(!cell)
+            cell=[[UITableViewCell alloc]initWithStyle:UITableViewCellStyleSubtitle reuseIdentifier:@"reusablecell"];
+        cell.backgroundColor=[UIColor clearColor];
+        cell.selectionStyle=UITableViewCellSelectionStyleDefault;
+        cell.accessoryType=UITableViewCellAccessoryNone;
+        return cell;
+    }
+    else
+    {
+        [tableView registerClass:[myTableViewCell class] forCellReuseIdentifier:@"myTableViewCell"];
+        myTableViewCell *cell=[tableView dequeueReusableCellWithIdentifier:@"myTableViewCell"];
+        if(!cell)
+            cell=[[myTableViewCell alloc]initWithStyle:UITableViewCellStyleDefault reuseIdentifier:@"myTableViewCell"];
+        
+        //调用cell的weibo setter方法，进行内容布局;
+        cell.weibo=_propertyArray[2][indexPath.row];
+        return cell;
+    }
 }
 
 //@option
@@ -88,7 +104,7 @@
 //edit
 -(BOOL)tableView:(UITableView *)tableView canEditRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    if(indexPath.section==1)
+    if(indexPath.section==1 || indexPath.section==2)
         return NO;
     return YES;
 }
@@ -126,16 +142,19 @@
 //move
 -(BOOL)tableView:(UITableView *)tableView canMoveRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    if(indexPath.section==1)
+    if(indexPath.section!=0)
         return NO;
     return YES;
 }
 -(void)tableView:(UITableView *)tableView moveRowAtIndexPath:(NSIndexPath *)sourceIndexPath toIndexPath:(NSIndexPath *)destinationIndexPath
 {
-    if(sourceIndexPath.section==0 && destinationIndexPath.section==0)
+    if(sourceIndexPath.section==0)
     {
         NSMutableArray *arr=_propertyArray[0];
-        [arr exchangeObjectAtIndex:sourceIndexPath.row withObjectAtIndex:destinationIndexPath.row];
+        if(destinationIndexPath.section==0)
+        {
+            [arr exchangeObjectAtIndex:sourceIndexPath.row withObjectAtIndex:destinationIndexPath.row];
+        }
     }
 }
 /*
@@ -162,16 +181,19 @@
     NSUInteger index=indexPath.row;
     NSArray *sectionArray=_propertyArray[section];
     NSDictionary *dicforcell=sectionArray[index];
-    UIListContentConfiguration *content=cell.defaultContentConfiguration;
-    content.image=[UIImage imageNamed:[dicforcell objectForKey:@"image"]];
-    content.imageProperties.maximumSize=CGSizeMake(45, 45);
-    content.text=[dicforcell objectForKey:@"subtitle"];
-    content.secondaryText=[dicforcell objectForKey:@"title"];
-    content.textProperties.color=[UIColor whiteColor];
-    content.textProperties.font=[UIFont systemFontOfSize:15];
-    content.secondaryTextProperties.color=[UIColor whiteColor];
-    content.secondaryTextProperties.font=[UIFont systemFontOfSize:20];
-    cell.contentConfiguration=content;
+    if(section!=2)
+    {
+        UIListContentConfiguration *content=cell.defaultContentConfiguration;
+        content.image=[UIImage imageNamed:[dicforcell objectForKey:@"image"]];
+        content.imageProperties.maximumSize=CGSizeMake(45, 45);
+        content.text=[dicforcell objectForKey:@"subtitle"];
+        content.secondaryText=[dicforcell objectForKey:@"title"];
+        content.textProperties.color=[UIColor whiteColor];
+        content.textProperties.font=[UIFont systemFontOfSize:15];
+        content.secondaryTextProperties.color=[UIColor whiteColor];
+        content.secondaryTextProperties.font=[UIFont systemFontOfSize:20];
+        cell.contentConfiguration=content;
+    }
 }
 
  //行选中时
@@ -223,7 +245,11 @@
  */
 -(NSIndexPath *)tableView:(UITableView *)tableView targetIndexPathForMoveFromRowAtIndexPath:(NSIndexPath *)sourceIndexPath toProposedIndexPath:(NSIndexPath *)proposedDestinationIndexPath
 {
-    return proposedDestinationIndexPath;
+    if(proposedDestinationIndexPath.section==0)
+        return proposedDestinationIndexPath;
+    else
+        //不可以返回nil值，会引起崩溃；
+        return sourceIndexPath;    //此语句使得cell的move操作只能在特定的section中进行；
 }
 //高亮显示；
 - (BOOL)tableView:(UITableView *)tableView shouldHighlightRowAtIndexPath:(NSIndexPath *)indexPath
@@ -247,6 +273,17 @@
     CGFloat cellfontheight=bodyfontheight *2 +cellMargin*2;
     CGFloat cellestimateheight=(imageMaxHeight>cellfontheight)? imageMaxHeight :cellfontheight;
     return cellestimateheight;
+}
+//行高度的计算
+- (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    if(indexPath.section!=2)
+        return 80;
+    else
+    {
+        NSNumber *cellHeight=[_propertyArray[2][indexPath.row] objectForKey:@"cellHeight"];
+        return cellHeight.floatValue;
+    }
 }
 - (UIView *)tableView:(UITableView *)tableView viewForHeaderInSection:(NSInteger)section
 {
@@ -274,13 +311,15 @@
 }
 - (CGFloat)tableView:(UITableView *)tableView heightForFooterInSection:(NSInteger)section
 {
-    if(section==1)
+    if(section==2)
         return 120;
-    return 35;
+    else if(section==0)
+        return 35;
+    return 0;
 }
 - (UIView *)tableView:(UITableView *)tableView viewForFooterInSection:(NSInteger)section
 {
-    if(section==1)
+    if(section==2)
     {
         UIView *footer=[[UIView alloc]initWithFrame:CGRectMake(0, 0, 0, 0)];
         footer.backgroundColor=[UIColor clearColor];
@@ -302,7 +341,7 @@
         [label.bottomAnchor constraintEqualToAnchor:footer.bottomAnchor constant:-5].active=true;
         return footer;
     }
-    else
+    else if(section==0)
     {
         UIView *footer=[[UIView alloc]initWithFrame:CGRectMake(0, 0, 0, 0)];
         footer.backgroundColor=[UIColor clearColor];
@@ -317,6 +356,7 @@
         [footer addSubview:label];
         return  footer;
     }
+    return nil;
 }
 #pragma  mark---其他方法；
 //编辑模式的响应方法；

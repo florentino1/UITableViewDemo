@@ -66,5 +66,25 @@
 			<string>email</string>
 		</dict>
 	</array>
+	<array>
+		<dict>
+			<key>id</key>
+			<integer>1</integer>
+			<key>createAt</key>
+			<string>今天 8:23</string>
+			<key>mbtype</key>
+			<string>lock</string>
+			<key>profileImageUrl</key>
+			<string>person</string>
+			<key>source</key>
+			<string>来自：iPhone12</string>
+			<key>text</key>
+			<string>距离iPhone13发布已经快一个多月的时间了，现在的问题是我该怎么样才能在不怎么花钱的基础上买到自己喜欢的手机和电脑，当然电脑是额外的选项，因为这狗比的显卡是在是太贵了呢</string>
+			<key>userName</key>
+			<string>冰冰</string>
+			<key>cellHeight</key>
+			<integer>0</integer>
+		</dict>
+	</array>
 </array>
 </plist>
